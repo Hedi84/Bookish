@@ -4,6 +4,10 @@ const app = express()
 const port = 3000
 var pgp = require('pg-promise')(/*options*/)
 var db = pgp('postgres://Bookish:softwire@localhost:5432/Bookish')
+var passport = require('passport');
+var passportjwt = require('passport-jwt');
+var jwt = require('jsonwebtoken');
+var token = jwt.sign();
 
 // db.any('INSERT INTO public.library_user(library_username, library_password) VALUES($1, $2)', ['John', 'Doe2'])
 //     .then(() => {
@@ -15,9 +19,25 @@ var db = pgp('postgres://Bookish:softwire@localhost:5432/Bookish')
     //
 
 // app.use(express.static('frontend'))
+// app.post('/login', passport.authenticate('local', { successRedirect: '/',
+//                                                     failureRedirect: '/login' }));
+//
+// }
+
+passport.use(new BasicStrategy(
+  function(username, password, done) {
+    db.any{'SELECT * FROM library_user WHERE library_username='username' '}, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      if (!user.validPassword(password)) { return done(null, false); }
+      return done(null, user);
+    });
+  }
+));
+
 
 app.get('/', function(req, res){
-    let data = db.any('SELECT * FROM book')
+  let data = db.any('SELECT * FROM book')
     return data
     .then(output => {
       var array = createBookObject(output)
@@ -25,6 +45,12 @@ app.get('/', function(req, res){
       res.send(array);
     })
 })
+
+app.get('/me',
+  passport.authenticate('basic', { session: false }),
+  function(req, res) {
+    res.json({ id: req.library_user.id, username: req.library_user.library_username, password: req.library_user.library_password });
+  });
 
 function createBookObject(array) {
   var books = []
