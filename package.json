@@ -6,11 +6,15 @@
   "dependencies": {
     "express": "^4.16.4",
     "jsonwebtoken": "^8.3.0",
+    "moment": "^2.22.2",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
-    "pg-promise": "^8.5.2"
+    "pg-promise": "^8.5.2",
+    "sql-template-strings": "^2.2.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mustache": "^3.0.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
